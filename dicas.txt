@@ -1,0 +1,183 @@
+>>>> Anotações curso de github <<<<
+
+** Sites 
+
+1. https://devhints.io/git-log
+2. http://git-school.github.io/visualizing-git/
+3. https://git-scm.com/book/pt-br/v2/Git-Basics-Recording-Changes-to-the-Repository
+
+** Comandos e suas funções
+
+>> Inicializando repositório git
+
+        git init
+
+>> Verificar o estado do repositório
+
+        git status
+
+>> Adicionando arquivo para ser commitado
+
+        git add [nomeDoArquivo]
+
+OBS: Para adicionar todos os arquivos utilizar o 'git add (.)'
+
+>> Commitando :)
+
+        git commit -m "[mensagem do commit]"
+
+>> Configurando git na máquina para que fique registrado a informação de quem é.
+
+        git config --local user.name "[nomeDoUsuario]"
+        git config --local user.email "[emailDoUsuario]"
+
+OBS: Para que a config seja para todos os repositórios do computador utilizar o --global no lugar do --local.
+
+>> Visualizando os commits (Log)
+OBS: Mais filtros pra mostrar o histórico no link (1)
+
+1. Visualizando todos os commits em uma única linha
+
+        git log --oneline
+
+2. Visualizando  todas informações de cada commit
+
+        git log -p
+
+3. Visualizar o hash resumido seguido pela mensagem do commit
+
+        git log --pretty="format:%h %s"
+
+4. Visualizar os commits com linhas específicas representando o desenvolvimento. Apresenta as branches.
+
+        git log --graph
+
+>> Ignorando arquivo
+
+PARA QUE O GIT IGNORE UM ARQUIVO É NECESSÁRIO CRIAR E ADICIONAR UM ARQUIVO CHAMADO '.gitignore'
+TODAS AS LINHAS QUE ESTIVEREM DENTRO DESSE ARQUIVO, INCLUSIVE MENÇÕES DE OUTROS ARQUIVOS SERÃO IGNORADAS PELO CONTROLE DO GIT.
+
+>> Inicializar um repositório para ser o servidor, ou seja, um diretório que somente armazenará as alterações, não sendo possível a edição de arquivos.
+
+        git init --bare
+
+OBS: O parâmetro '--bare' indica que o repositório é puro, ou seja, não contém a cópia fisica de cada um dos arquivos.
+
+>> Listando todos os repositórios remotos que o repositório local conhece.
+
+        git remote -v
+
+OBS:
+
+(fetch) - é indicado de onde os dados deste caminho serão buscados
+(push) - é indicado para onde os dados desde caminho serão enviados
+
+>> Clonando repositório
+Isso traz todos os dados de um repositório remoto para o repositório local pela primeira vez.
+
+        git clone [caminho do repositório local ou do github]
+
+>> Enviando arquivo para o repositório remoto
+
+        git push local master
+
+ATENÇÃO: Caso o repositório local esteja com outro nome, basta renomear se necessário com o comando: 
+
+        'git remote rename [nomeAtual] [nomeDesejado]'
+
+>> Buscar modificações do repositório remoto para o local
+
+        git pull local master
+
+>> Branches
+
+1. Criando uma branch
+
+        git branch [nomeDaBranch]
+
+2. Criando um branch e mudando para ela
+
+        git checkout -b [nomeDaBranch]
+
+>> Unindo trabalhos
+
+1. Unificando através de 'Merge'. Necessário estar na master e é gerado um 'merge commit'.
+
+        git merge [nomeDaBranch]
+
+OBS: Para sair do editor VIM, ':X + Enter'
+
+2. Unificando através de 'Rebase'. Necessário estar na master e aplica os commits de outra branch na branch atual.
+
+        git rebase [nomeDaBranch
+        
+ATENÇÃO: DEPOIS DE DAR MERGE OU REBASE É NECESSÁRIO ATUALIZAR O REPOSITÓRIO REMOTO COM AS CORREÇÕES REALIZADAS.
+
+>> Desfazendo no git
+
+1. Descartando alterações que ainda não foram adicionadas para commitar. Navega tbm em estados do repositório.
+
+        git checkout --[nomeDoArquivo]
+
+2. Descartando alterações que já foram adicionadas para commitar, mas não foram commitadas ainda.
+
+        git reset HEAD [nomeDoArquivo]
+        git checkout --[nomeDoArquivo]
+
+3. Descartando alterações que foram commitadas.
+Obs: Necessário buscar o hash do commit!
+
+        git revert [hash do commit]
+
+ATENÇÂO: Ele criará um commit de revert.
+
+>> Guardando código para depois sem a necessidade de commitar e/ou desfazer o código (Stash)
+
+1. Criando uma stash temporária com os arquivos que não foram adicionadas para commit ainda.
+
+        git stash
+
+2. Verificar a lista de alterações na stash
+
+        git stash list
+
+3. Recuperar alterações da stash
+
+        git stash pop
+
+ATENÇÂO: Ele criará um merge com as modificações existentes com as salvas no stash
+
+>> Navegando entre commits 
+É necessario buscar o hash do commit que voce deseja navegar.
+Para que os commits feitos a partir deste ponto sejam mantidos, é INDISPENSÁVEL criar uma nova branch.
+
+        git checkout [hash do commit]
+
+>> Vendo as alterações de cada commit (Diff)
+
+1. Mostrando a diferença entre dois commits
+
+        git diff [primeiroCommit] ..[segundoCommit]
+
+OBS: 
+
++ linha adicionada
+- linha removida
+- linha modificada (versão antiga)
++ linha modificada (nova versão)
+
+2. Mostrando a diferença sem as alterações terem sido adicionadas para commitar
+
+        git diff
+
+>> Gerando uma versão ou marco a partir de um commit
+
+1. Criando uma tag
+
+        git tag -a [nomeDaTag ex: v0.1.0] -m ""
+
+OBS: mensagem é opcional
+
+2. Enviando tag para o servidor
+
+        git push [nomeDoRepositorio ex: Origin] [nomeDaTag]
