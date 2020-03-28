@@ -1,0 +1,234 @@
+>>>> Anotações curso Docker <<<<
+
+** Comandos
+
+>> Criar e executar um container
+
+		docker run [nomeDoContainer]
+
+Obs: Se o docker não encontrar a imagem do container no pc, ele ira no 'Docker Store' e baixará a mesma.
+
+>> Verificar os container que estão sendo executados no momento
+
+		docker ps
+
+>> Verificar todos os containers, inclusive os parados
+
+		docker ps -a
+
+>> Integrando terminal da máquina com o terminal de dentro do container (terminal iterativo)
+
+		docker run -it [nomeDoContainer]
+
+Obs: Esse comando criará um novo container antes de executar a integração
+
+>> Executando um container sem criar um novo
+
+		docker start [idDoContainer]
+
+Obs: Para descobrir o id do container utilizar os comando ps e variações.
+
+>> Parando um container
+
+		docker stop [idDoContainer]
+
+>> Executando um container e integrando os terminais ao mesmo tempo
+
+		docker start -a -i [idDoContainer]
+
+Obs: a = attach; i = interactive
+
+>> Removendo um container do computador
+
+		docker rm [idDoContainer]
+
+>> Removendo todos os container inativos
+
+		docker container prune
+
+>> Listando as imagens 
+
+		docker images
+
+>> Removendo imagens
+		
+		docker rmi [nomeDaImagem]
+
+>> Evitando que o container trave o terminal (-d)
+
+		docker run -d [nomeDoContainer]
+
+>> Linkando a porta interna do container com uma porta do computador (-P)
+
+		docker run -d -P [nomeDoContainer]
+
+>> Verificando as portas utilizadas
+
+		docker port [idDoContainer]
+
+>> ATENÇÃO: Para verificar o IP da máquina virtual
+
+		docker-machine ip
+
+Obs: Isso é necessário no caso de se utilizar o Docker Toolbox. Com o Ip em mãos, para acessar a porta que o Docker atribuiu, colocar 'http://<ipGerado>:<porta>'. Ex.: http://192.168.0.38:9001
+
+>> Nomeando um container (--name [nomeDesejado])
+
+		docker run -d -P --name meu-site [nomeDoContainer]
+
+Obs: Agora é possivel para o container utilizando o seu nome, por exemplo: 'docker stop meu-site'
+
+>> Definindo uma porta específica (-p)
+
+		docker run -d -p 12345:80 [nomeDoContainer]
+
+>> Atribuindo variável de ambiente (-e)
+
+		docker run -d -P -e AUTHOR="teste" [nomeDoContainer]
+
+>> Parando todos os containers de uma vez só
+
+		docker stop $(docker ps -q)
+
+Obs: 'docker ps -q' lista todos os ids dos containers que estão rodando.
+
+>>: Volumes
+   Os volumes são indispensáveis para a persistência dos dados que estamos trabalhando, de modo que seja possível excluir os containers mas os dados permaneçam salvos. O volume fica no Docker Host. Ou seja, fica salvo no computador onde a Docker Engine está rodando.
+
+a) Criar um volume (-v)
+
+		docker run -v "/var/www/" [nomeDoContainer]
+
+b) Inspecionar um container
+
+		docker inspect [idDoContainer]
+
+Obs: Nesse momento o que interessa é o "Mounts"	onde é possível ver o diretório(source) onde os dados serão salvos.
+
+ATENÇÃO: Criando um ambiente de desenvolvimento utilizando o docker ----------------------------------------------
+Flag: -w = (working Directory) para dizer em qual diretório o comando deve ser executado
+	
+	docker run -d -p 8080:[portaServidor] -v "[caminhoPasta]:/var/www" -w "/var/www" [nomeDoContainer] [script]
+
+Ex:
+	docker run -d -p 8080:3000 -v "/c/Users/Mathii/Desktop/volume-exemplo:/var" -w "/var" node npm start
+
+------------------------------------------------------------------------------------------------------------------
+
+>>: Criando nossa própria imagem
+   Devemos criar o arquivo Dockerfile, que nada mais é do que um arquivo de texto. Ele pode ter qualquer nome, porém nesse caso ele também deve possuir a extensão .dockerfile, por exemplo node.dockerfile.
+
+a) FROM -> diz a imagem base que queremos utilizar:
+
+		FROM node:[versão]
+ex:
+		FROM node:latest
+
+b) MAINTAINER -> diz quem criou/cuida da imagem:
+
+		MAINTAINER: [nomeDaPessoa]
+ex:
+		MAINTAINER: Matheus Ferreira
+
+c) COPY -> especifica-se o que deve ser colocado dentro da imagem. Caso o desejado seja colocar tudo que está dentro da pasta, utilizamos o (.)
+
+		COPY . [diretorio]
+ex:
+		COPY . /var/www
+
+d) WORKDIR -> Define onde os comandos rodarão, ou seja, o diretório de trabalho
+
+		WORKDIR [diretorio]
+ex:
+		WORKDIR /var/www
+
+e) RUN -> executar um comando
+
+		RUN [comando]
+ex:
+		RUN npm install
+
+f) ENTRYPOINT -> executará o comando assim que o container for carregado
+
+		ENTRYPOINT [comando]
+ex:
+		ENTRYPOINT npm start
+
+Obs: Também podemos passar o comando como se fosse em um array, por exemplo ["npm", "start"], ambos funcionam.
+
+g) EXPOSE -> Define a porta que a aplicação utilizará
+
+		EXPOSE [porta]
+ex:
+		EXPOSE 3000
+
+h) ENV -> Cria variaveis de ambiente. Para utilizá-las, precedê-las de ($)
+
+		ENV [variavel]
+ex:
+		ENV PORT=3000
+		EXPOSE $PORT
+
+>>: Build da imagem definida no Dockerfile
+
+		docker build -f [nomeDoDockerfile] -t [nomeUsuario/nomeImagem][caminhoDoDockerfile]
+
+Obs.: Caso você já esteja rodando o comando dentro da pasta em que se encontra o Dockerfile, só utilizar o (.) no [caminhoDoDockerfile]
+
+ex:
+		docker build -f Dockerfile -t matheus/node .
+
+>: Docker Hub (repositórios de imagens docker)
+
+a) login no docker hub
+
+		docker login
+
+b) enviando imagem criada para o docker hub
+
+		docker push [nomeDaImagem]
+ex:
+		docker push matheus/node
+
+c) baixando imagem do repositório
+
+		docker pull [nomeDaImagem]
+
+>>: Comunicação entre containers utilizando seus nomes
+   Na rede padrão do Docker, só podemos realizar a comunicação utilizando IPs, mas se criarmos a nossa própria rede, podemos "batizar" os nossos containers, e realizar a comunicação entre eles utilizando os seus nomes
+
+		docker network create --driver bridge [nomeDaRede]
+
+>: Vinculando um container a uma rede específica
+
+		docker run -it --name [novoNomeContainer] --network [nomeDaRede] [nomeDoContainer]
+ex:
+		docker run -it --name meu-container-ubuntu --network minha-rede ubuntu
+
+Obs: Mostrar o ip atribuído ao container pelo docker (funciona apenas dentro do container)
+		hostname -i
+
+>>: Subindo o docker compose
+
+ATENÇÃO: * Necessário deixar o 'docker-compose.yml'
+         * Comandos do docker funcionam normalmente
+
+a) Buildando as imagens para garantir que as temos (dentro da pasta do projeto)
+
+		docker-compose build
+
+b) Subindo os serviços
+
+		docker-compose up
+
+Obs: Se usarmos a flag -d perderemos o registro dos logs, mas não travamos o console.
+
+c) Parandos os serviços e removendo os containers alocados
+
+		docker-compose down
+
+d) Lista os serviços que estão rodando
+
+		docker-compose ps
+
+ 
