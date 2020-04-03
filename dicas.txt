@@ -180,4 +180,8 @@ OBS: mensagem é opcional
 
 2. Enviando tag para o servidor
 
+>> Dar rebase no pull
+
+	git config --global pull.rebase true
+
         git push [nomeDoRepositorio ex: Origin] [nomeDaTag]
